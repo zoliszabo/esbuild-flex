@@ -84,6 +84,12 @@ npx esbuild-flex
 
 # Watch mode
 npx esbuild-flex --watch
+
+# Custom config file
+npx esbuild-flex --config=custom.config.js
+
+# Watch with custom config
+npx esbuild-flex --watch --config=custom.config.js
 ```
 
 ### 3. Add to package.json scripts

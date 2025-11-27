@@ -1,43 +1,18 @@
-#!/usr/bin/env node
-
-/**
- * Flexible ESBuild pipeline (Standalone npm package)
- * Supports:
- *  - Multiple groups for JS and optional SCSS
- *  - Entry points as direct file paths or glob patterns (aligned with esbuild native API)
- *  - All three esbuild entryPoints formats: string[], {in, out}[], Record<string, string>
- *  - Per-group esbuild options with global fallback
- *  - Watch mode with efficient single context per group
- *  - Optional SCSS compilation if user installs esbuild-sass-plugin
- *
- * Usage:
- *   npx esbuild-flex
- *   npx esbuild-flex --watch
- */
-
 const path = require('path');
 const { loadConfig, validateConfig } = require('./config');
 const { resolveEsbuildOptions, createContext, logOutputFiles } = require('./builder');
+const { DEFAULT_ESBUILD_OPTIONS } = require('./defaults');
 
-const isWatch = process.argv.includes('--watch');
-const CONFIG_FILE = path.resolve(process.cwd(), 'esbuild-flex.config.js');
+async function build(options = {}) {
+    const isWatch = options.watch || false;
+    const configPath = path.resolve(process.cwd(), options.configPath || 'esbuild-flex.config.js');
 
-// Default esbuild options for esbuild-flex
-const DEFAULT_OPTIONS = {
-    target: 'es2018',
-    sourcemap: false,
-    bundle: false,
-    minify: true,
-    metafile: true  // Enable metafile for better output logging
-};
-
-async function build() {
     // Load and validate configuration
-    const userConfig = loadConfig(CONFIG_FILE);
+    const userConfig = loadConfig(configPath);
     validateConfig(userConfig);
 
     const { groups = [], ...rootConfig } = userConfig;
-    const globalConfig = { ...DEFAULT_OPTIONS, ...rootConfig };
+    const globalConfig = { ...DEFAULT_ESBUILD_OPTIONS, ...rootConfig };
 
     const contexts = [];
 
@@ -79,12 +54,6 @@ async function build() {
         await Promise.all(contexts.map(ctx => ctx.watch()));
     }
 }
-
-// Main execution
-build().catch(err => {
-    console.error('Fatal build error:', err);
-    process.exit(1);
-});
 
 // Export for programmatic API
 module.exports = { build };
