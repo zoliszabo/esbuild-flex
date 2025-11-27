@@ -20,26 +20,39 @@ async function build(options = {}) {
     for (let i = 0; i < groups.length; i++) {
         const group = groups[i];
 
-        const groupLabel = `Group #${i + 1}` + (group.name ? ` (${group.name})` : '');
-        logger.log(); // Leave one empty line.
-        logger.log(`> ${groupLabel}`);
-
         const esbuildOptions = resolveEsbuildOptions(globalConfig, group);
+
+        // Add label to group for logging. The `group` object can be altered only after esbuildOptions is built.
+        group.label = `group #${i + 1}` + (group.name ? ` (${group.name})` : '');
+
+        // Add plugin for build result logging
+        const plugins = esbuildOptions.plugins || [];
+        plugins.push({
+            name: 'esbuild-flex-build-logger',
+            setup(build) {
+                build.onStart(() => {
+                    logger.log(); // Leave one empty line.
+                    logger.log(`> Building ${group.label}...`);
+                });
+
+                build.onEnd((result) => {
+                    logBuildResult(result, group);
+                });
+            },
+        });
 
         // Create a single context for all entry points in this group
         // esbuild natively handles glob patterns in entryPoints
         const ctx = await createContext({
             ...esbuildOptions,
+            plugins,
             entryPoints: group.entryPoints,
         });
 
         contexts.push(ctx);
 
         // Initial build
-        const result = await ctx.rebuild();
-
-        // Log build result
-        logBuildResult(result, group);
+        await ctx.rebuild();
 
         if (!isWatch) {
             await ctx.dispose();
