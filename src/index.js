@@ -26,6 +26,7 @@ async function build(options = {}) {
         }
 
         const groupLabel = `Group #${i + 1}` + (group.name ? ` (${group.name})` : '');
+        logger.log(); // Leave one empty line.
         logger.log(`> ${groupLabel}`);
 
         const esbuildOptions = resolveEsbuildOptions(globalConfig, group);
@@ -51,7 +52,8 @@ async function build(options = {}) {
     }
 
     if (isWatch) {
-        logger.log('[watch] build finished, watching for changes...');
+        logger.log(); // Leave one empty line.
+        logger.log('[WATCH MODE] build finished, watching for changes...');
         await Promise.all(contexts.map(ctx => ctx.watch()));
     }
 }

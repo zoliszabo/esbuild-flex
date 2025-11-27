@@ -41,7 +41,7 @@ async function createContext(esbuildOptions) {
 function logBuildResult(result, group) {
     if (result.metafile) {
         for (const output of Object.keys(result.metafile.outputs)) {
-            logger.log(`  → ${output}`);
+            logger.log(`  - ${output}`);
         }
     } else {
         // Fallback logging when metafile is not available
