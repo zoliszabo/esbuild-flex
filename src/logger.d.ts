@@ -29,9 +29,19 @@ export const logger: Logger;
 export function setLogger(loggerImpl: LoggerImplementation): void;
 
 /**
- * Set logger verbosity
+ * Verbosity level constants
  */
-export function setLoggerVerbosity(verbose: boolean): void;
+export const VERBOSITY_SILENT: 0;
+export const VERBOSITY_NORMAL: 1;
+export const VERBOSITY_VERBOSE: 2;
+
+/**
+ * Set logger verbosity level
+ * - VERBOSITY_SILENT (0): Only warnings and errors
+ * - VERBOSITY_NORMAL (1): Warnings, errors, and info (default)
+ * - VERBOSITY_VERBOSE (2): All logs including debug
+ */
+export function setLoggerVerbosity(level: number): void;
 
 /**
  * Create a console logger implementation (logs to console with styled output)

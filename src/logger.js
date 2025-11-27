@@ -34,8 +34,13 @@ function noopLogger() {
     };
 }
 
+// Verbosity levels (exported for client use)
+const VERBOSITY_SILENT = 0;  // Only errors and warnings
+const VERBOSITY_NORMAL = 1;  // + info
+const VERBOSITY_VERBOSE = 2; // + log (debug)
+
 // Logger state
-let isVerbose = false;
+let verbosityLevel = VERBOSITY_NORMAL;
 let backendLogger = noopLogger(); // Default to noop
 
 /**
@@ -43,8 +48,13 @@ let backendLogger = noopLogger(); // Default to noop
  */
 const logger = {
     log: (...args) => {
-        if (isVerbose && backendLogger) {
+        if (verbosityLevel >= VERBOSITY_VERBOSE && backendLogger) {
             backendLogger.log(...args);
+        }
+    },
+    info: (...args) => {
+        if (verbosityLevel >= VERBOSITY_NORMAL && backendLogger) {
+            backendLogger.info(...args);
         }
     },
     warn: (...args) => {
@@ -55,11 +65,6 @@ const logger = {
     error: (...args) => {
         if (backendLogger) {
             backendLogger.error(...args);
-        }
-    },
-    info: (...args) => {
-        if (backendLogger) {
-            backendLogger.info(...args);
         }
     },
 };
@@ -73,11 +78,11 @@ function setLogger(loggerImpl) {
 }
 
 /**
- * Set logger verbosity.
- * @param {boolean} verbose - Whether to enable verbose logging
+ * Set logger verbosity level.
+ * @param {number} level - Verbosity level (use VERBOSITY_* constants)
  */
-function setLoggerVerbosity(verbose) {
-    isVerbose = verbose;
+function setLoggerVerbosity(level) {
+    verbosityLevel = level;
 }
 
 /**
@@ -85,7 +90,17 @@ function setLoggerVerbosity(verbose) {
  * @returns {boolean}
  */
 function isVerboseMode() {
-    return isVerbose;
+    return verbosityLevel >= VERBOSITY_VERBOSE;
 }
 
-module.exports = { logger, setLogger, setLoggerVerbosity, isVerboseMode, consoleLogger, noopLogger };
+module.exports = {
+    logger,
+    setLogger,
+    setLoggerVerbosity,
+    isVerboseMode,
+    consoleLogger,
+    noopLogger,
+    VERBOSITY_SILENT,
+    VERBOSITY_NORMAL,
+    VERBOSITY_VERBOSE,
+};
