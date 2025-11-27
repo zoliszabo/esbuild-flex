@@ -20,11 +20,6 @@ async function build(options = {}) {
     for (let i = 0; i < groups.length; i++) {
         const group = groups[i];
 
-        if (!group.entryPoints) {
-            logger.warn(`Group #${i + 1} has no entryPoints defined`);
-            continue;
-        }
-
         const groupLabel = `Group #${i + 1}` + (group.name ? ` (${group.name})` : '');
         logger.log(); // Leave one empty line.
         logger.log(`> ${groupLabel}`);
