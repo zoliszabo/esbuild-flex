@@ -1,4 +1,5 @@
 const esbuild = require('esbuild');
+const { logger } = require('./logger');
 
 // esbuild-flex specific options that should NOT be passed to esbuild.context()
 const FLEX_SPECIFIC_OPTIONS = ['name', 'groups'];
@@ -33,26 +34,26 @@ async function createContext(esbuildOptions) {
 }
 
 /**
- * Logs the output files from a build result.
+ * Logs the build result.
  * @param {Object} result - esbuild build result
  * @param {Object} group - Group configuration
  */
-function logOutputFiles(result, group) {
+function logBuildResult(result, group) {
     if (result.metafile) {
         for (const output of Object.keys(result.metafile.outputs)) {
-            console.log(`  → ${output}`);
+            logger.log(`  → ${output}`);
         }
     } else {
         // Fallback logging when metafile is not available
         const entryCount = Array.isArray(group.entryPoints)
             ? group.entryPoints.length
             : Object.keys(group.entryPoints).length;
-        console.log(`  Built ${entryCount} entry point(s)`);
+        logger.log(`  Built ${entryCount} entry point(s)`);
     }
 }
 
 module.exports = {
     resolveEsbuildOptions,
     createContext,
-    logOutputFiles,
+    logBuildResult,
 };

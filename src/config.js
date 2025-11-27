@@ -1,5 +1,5 @@
 const fs = require('fs');
-const { styleText } = require('node:util');
+const { logger } = require('./logger');
 
 /**
  * Loads the esbuild-flex configuration file.
@@ -9,16 +9,16 @@ const { styleText } = require('node:util');
  */
 function loadConfig(configPath) {
     if (!fs.existsSync(configPath)) {
-        console.error(`Config file not found: ${configPath}`);
+        logger.error(`Config file not found: ${configPath}`);
         process.exit(1);
     }
 
     let userConfig = {};
     try {
         userConfig = require(configPath) || {};
-        console.log(`Loaded config from ${configPath}`);
+        logger.log(`Loaded config from ${configPath}`);
     } catch (e) {
-        console.error('Invalid esbuild-flex.config.js file:', e.message);
+        logger.error('Invalid esbuild-flex.config.js file:', e.message);
         process.exit(1);
     }
 
@@ -34,20 +34,37 @@ function loadConfig(configPath) {
  */
 function validateConfig(config) {
     if (!config.groups || !Array.isArray(config.groups) || config.groups.length === 0) {
-        console.error(
-            styleText(['white', 'bgRed'], 'esbuild-flex config validation failed:'),
-            '\n - config.groups must be a non-empty array'
-        );
+        logger.error('Config validation failed: config.groups must be a non-empty array');
         process.exit(1);
     }
 
     for (let i = 0; i < config.groups.length; i++) {
         const group = config.groups[i];
+
         if (!group.entryPoints) {
-            console.error(
-                styleText(['white', 'bgRed'], 'esbuild-flex config validation failed:'),
-                `\n - config.groups[${i}] must have an 'entryPoints' property`
-            );
+            logger.error(`Config validation failed: config.groups[${i}] must have an 'entryPoints' property`);
+            process.exit(1);
+        }
+
+        // Validate entryPoints is either an array or an object
+        // esbuild supports: string[], {in, out}[], or Record<string, string>
+        const isArray = Array.isArray(group.entryPoints);
+        const isObject = typeof group.entryPoints === 'object' && group.entryPoints !== null;
+
+        if (!isArray && !isObject) {
+            logger.error(`Config validation failed: config.groups[${i}].entryPoints must be an array or object`);
+            process.exit(1);
+        }
+
+        // If it's an array, check it's not empty
+        if (isArray && group.entryPoints.length === 0) {
+            logger.error(`Config validation failed: config.groups[${i}].entryPoints array must not be empty`);
+            process.exit(1);
+        }
+
+        // If it's an object (Record format), check it has at least one key
+        if (isObject && !isArray && Object.keys(group.entryPoints).length === 0) {
+            logger.error(`Config validation failed: config.groups[${i}].entryPoints object must not be empty`);
             process.exit(1);
         }
     }

@@ -11,6 +11,7 @@
  */
 
 const { build } = require('./index');
+const { logger } = require('./logger');
 
 // Parse CLI arguments
 const args = process.argv.slice(2);
@@ -25,6 +26,6 @@ if (configArg) {
 
 // Run build and handle errors
 build({ watch, configPath }).catch(err => {
-    console.error('Fatal build error:', err);
+    logger.error('Fatal build error:', err);
     process.exit(1);
 });

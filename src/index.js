@@ -1,7 +1,8 @@
 const path = require('path');
 const { loadConfig, validateConfig } = require('./config');
-const { resolveEsbuildOptions, createContext, logOutputFiles } = require('./builder');
+const { resolveEsbuildOptions, createContext, logBuildResult } = require('./builder');
 const { DEFAULT_ESBUILD_OPTIONS } = require('./defaults');
+const { logger } = require('./logger');
 
 async function build(options = {}) {
     const isWatch = options.watch || false;
@@ -20,12 +21,12 @@ async function build(options = {}) {
         const group = groups[i];
 
         if (!group.entryPoints) {
-            console.warn(`Group #${i + 1} has no entryPoints defined`);
+            logger.warn(`Group #${i + 1} has no entryPoints defined`);
             continue;
         }
 
         const groupLabel = `Group #${i + 1}` + (group.name ? ` (${group.name})` : '');
-        console.log(`\n> ${groupLabel}`);
+        logger.log(`> ${groupLabel}`);
 
         const esbuildOptions = resolveEsbuildOptions(globalConfig, group);
 
@@ -41,8 +42,8 @@ async function build(options = {}) {
         // Initial build
         const result = await ctx.rebuild();
 
-        // Log output files
-        logOutputFiles(result, group);
+        // Log build result
+        logBuildResult(result, group);
 
         if (!isWatch) {
             await ctx.dispose();
@@ -50,7 +51,7 @@ async function build(options = {}) {
     }
 
     if (isWatch) {
-        console.log('\n[watch] build finished, watching for changes...');
+        logger.log('[watch] build finished, watching for changes...');
         await Promise.all(contexts.map(ctx => ctx.watch()));
     }
 }
