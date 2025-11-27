@@ -15,45 +15,15 @@
  *   npx esbuild-flex --watch
  */
 
-const esbuild = require('esbuild');
-const fs = require('fs');
 const path = require('path');
-const { styleText } = require('node:util');
+const { loadConfig, validateConfig } = require('./config');
+const { resolveEsbuildOptions, createContext, logOutputFiles } = require('./builder');
 
 const isWatch = process.argv.includes('--watch');
-
 const CONFIG_FILE = path.resolve(process.cwd(), 'esbuild-flex.config.js');
 
-if (!fs.existsSync(CONFIG_FILE)) {
-    console.error(`Config file not found: ${CONFIG_FILE}`);
-    process.exit(1);
-}
-
-let userConfig = {};
-try {
-    userConfig = require(CONFIG_FILE) || {};
-    console.log(`Loaded config from ${CONFIG_FILE}`);
-} catch (e) {
-    console.error('Invalid esbuild-flex.config.js file:', e.message);
-    process.exit(1);
-}
-
-// Simple validation for esbuild-flex specific structure.
-// All esbuild options (including entryPoints) are validated by esbuild itself.
-if (!userConfig.groups || !Array.isArray(userConfig.groups) || userConfig.groups.length === 0) {
-    console.error(styleText(['white', 'bgRed'], 'esbuild-flex config validation failed:'), '\n - config.groups must be a non-empty array');
-    process.exit(1);
-}
-
-for (let i = 0; i < userConfig.groups.length; i++) {
-    const group = userConfig.groups[i];
-    if (!group.entryPoints) {
-        console.error(styleText(['white', 'bgRed'], 'esbuild-flex config validation failed:'), `\n - config.groups[${i}] must have an 'entryPoints' property`);
-        process.exit(1);
-    }
-}
-
-const defaultGlobalConfig = {
+// Default esbuild options for esbuild-flex
+const DEFAULT_OPTIONS = {
     target: 'es2018',
     sourcemap: false,
     bundle: false,
@@ -61,32 +31,14 @@ const defaultGlobalConfig = {
     metafile: true  // Enable metafile for better output logging
 };
 
-const { groups = [], ...rootConfig } = userConfig;
-const globalConfig = { ...defaultGlobalConfig, ...rootConfig };
-
-// esbuild-flex specific options that should NOT be passed to esbuild.context()
-const FLEX_SPECIFIC_OPTIONS = ['name', 'groups'];
-
-/**
- * Resolves esbuild options for a group by merging global config with group-specific overrides.
- * Excludes esbuild-flex specific options (FLEX_SPECIFIC_OPTIONS).
- */
-function resolveEsbuildOptions(group) {
-    const options = { ...globalConfig };
-
-    // Override with group-specific options
-    for (const key in group) {
-        if (!FLEX_SPECIFIC_OPTIONS.includes(key)) {
-            options[key] = group[key];
-        }
-    }
-
-    return options;
-}
-
-
-
 async function build() {
+    // Load and validate configuration
+    const userConfig = loadConfig(CONFIG_FILE);
+    validateConfig(userConfig);
+
+    const { groups = [], ...rootConfig } = userConfig;
+    const globalConfig = { ...DEFAULT_OPTIONS, ...rootConfig };
+
     const contexts = [];
 
     for (let i = 0; i < groups.length; i++) {
@@ -100,11 +52,11 @@ async function build() {
         const groupLabel = `Group #${i + 1}` + (group.name ? ` (${group.name})` : '');
         console.log(`\n> ${groupLabel}`);
 
-        const esbuildOptions = resolveEsbuildOptions(group);
+        const esbuildOptions = resolveEsbuildOptions(globalConfig, group);
 
         // Create a single context for all entry points in this group
         // esbuild natively handles glob patterns in entryPoints
-        const ctx = await esbuild.context({
+        const ctx = await createContext({
             ...esbuildOptions,
             entryPoints: group.entryPoints,
         });
@@ -115,18 +67,7 @@ async function build() {
         const result = await ctx.rebuild();
 
         // Log output files
-        if (result.metafile) {
-            //console.log(result.metafile);
-            for (const output of Object.keys(result.metafile.outputs)) {
-                console.log(`  → ${output}`);
-            }
-        } else {
-            // Fallback logging when metafile is not available
-            const entryCount = Array.isArray(group.entryPoints)
-                ? group.entryPoints.length
-                : Object.keys(group.entryPoints).length;
-            console.log(`  Built ${entryCount} entry point(s)`);
-        }
+        logOutputFiles(result, group);
 
         if (!isWatch) {
             await ctx.dispose();
@@ -139,7 +80,11 @@ async function build() {
     }
 }
 
+// Main execution
 build().catch(err => {
     console.error('Fatal build error:', err);
     process.exit(1);
 });
+
+// Export for programmatic API
+module.exports = { build };
