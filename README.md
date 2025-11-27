@@ -1,16 +1,14 @@
 # esbuild-flex
 
-A thin wrapper around esbuild for managing multiple build configurations in a single config file.
+A thin wrapper around [esbuild](https://esbuild.github.io) for managing multiple build configurations in a single config file.
 
 Run different esbuild configurations for different parts of your project - each with its own entry points, output directory, and options. Perfect for projects that need separate builds for client/server code, modern/legacy browsers, or different output formats.
 
 ## Features
 
-- **Multiple configurations** - Different settings for different parts of your app
-- **All esbuild entryPoints formats** - `string[]`, `{in, out}[]`, `Record<string, string>`
-- **Native glob support** - Pass globs directly, esbuild handles them
-- **Efficient watch mode** - One context per configuration, not per file
-- **Zero extra dependencies** - Just esbuild-flex, esbuild included
+- **Multiple configurations (groups)** - different settings for different parts of your app;
+- **Supports all esbuild** entryPoints formats (`string[]`, `{in, out}[]`, `Record<string, string>`) and options;
+- **Tagging** of configurations for selective building.
 
 ## Installation
 
