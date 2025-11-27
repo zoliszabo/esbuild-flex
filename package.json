@@ -1,6 +1,6 @@
 {
-  "name": "esbuild-flex",
-  "version": "0.1.0",
+  "name": "@zoliszabo/esbuild-flex",
+  "version": "0.2.0",
   "description": "A thin wrapper around esbuild for managing multiple build configurations in a single config file",
   "main": "src/index.js",
   "types": "esbuild-flex.config.d.ts",
