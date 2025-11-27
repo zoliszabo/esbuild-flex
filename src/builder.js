@@ -47,7 +47,7 @@ function logBuildResult(result, group) {
 
     // Log successful build output
     if (result.warnings && result.warnings.length > 0) {
-        logger.warn(`Build successful - but with warning(s) - for ${group.label}`);
+        logger.warn(`Build completed for ${group.label}, with warning(s)`);
     } else {
         logger.info(`Build successful for ${group.label}`);
     }

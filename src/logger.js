@@ -80,4 +80,12 @@ function setLoggerVerbosity(verbose) {
     isVerbose = verbose;
 }
 
-module.exports = { logger, setLogger, setLoggerVerbosity, consoleLogger, noopLogger };
+/**
+ * Check if verbose mode is enabled.
+ * @returns {boolean}
+ */
+function isVerboseMode() {
+    return isVerbose;
+}
+
+module.exports = { logger, setLogger, setLoggerVerbosity, isVerboseMode, consoleLogger, noopLogger };

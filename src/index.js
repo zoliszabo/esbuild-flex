@@ -2,7 +2,7 @@ const path = require('path');
 const { loadConfig, validateConfig } = require('./config');
 const { resolveEsbuildOptions, createContext, logBuildResult } = require('./builder');
 const { DEFAULT_ESBUILD_OPTIONS } = require('./defaults');
-const { logger } = require('./logger');
+const { logger, isVerboseMode } = require('./logger');
 
 async function build(options = {}) {
     const isWatch = options.watch || false;
@@ -13,7 +13,12 @@ async function build(options = {}) {
     validateConfig(userConfig);
 
     const { groups = [], ...rootConfig } = userConfig;
-    const globalConfig = { ...DEFAULT_ESBUILD_OPTIONS, ...rootConfig };
+    const globalConfig = {
+        ...DEFAULT_ESBUILD_OPTIONS,
+        ...rootConfig,
+        // Set esbuild logLevel: show warnings only in verbose mode
+        logLevel: isVerboseMode() ? 'warning' : 'error',
+    };
 
     const contexts = [];
 
