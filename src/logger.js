@@ -15,9 +15,9 @@ function consoleLogger(prefix = null) {
 
     return {
         log: (...args) => console.log(prefix, ...args),
-        warn: (...args) => console.warn(styleText(['black', 'bgYellow'], ' WARN '), prefix, ...args),
-        error: (...args) => console.error(styleText(['white', 'bgRed'], ' ERROR '), prefix, ...args),
-        info: (...args) => console.info(styleText(['white', 'bgBlue'], ' INFO '), prefix, ...args),
+        warn: (...args) => console.warn(prefix, styleText(['black', 'bgYellow'], ' WARN '), ...args),
+        error: (...args) => console.error(prefix, styleText(['white', 'bgRed'], ' ERROR '), ...args),
+        info: (...args) => console.info(prefix, styleText(['white', 'bgBlue'], ' INFO '), ...args),
     };
 }
 
