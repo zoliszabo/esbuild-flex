@@ -1,0 +1,33 @@
+# Examples not needed in npm package
+examples/
+
+# Development files
+.gitignore
+.editorconfig
+.eslintrc*
+.prettierrc*
+tsconfig.json
+
+# Testing
+test/
+tests/
+*.test.js
+*.spec.js
+coverage/
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+
+# IDE
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*

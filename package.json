@@ -1,0 +1,42 @@
+{
+  "name": "esbuild-flex",
+  "version": "0.1.0",
+  "description": "A thin wrapper around esbuild for managing multiple build configurations in a single config file",
+  "main": "src/index.js",
+  "types": "esbuild-flex.config.d.ts",
+  "bin": {
+    "esbuild-flex": "./src/index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "esbuild",
+    "build",
+    "bundler",
+    "compiler",
+    "minifier",
+    "javascript",
+    "typescript",
+    "css",
+    "watch",
+    "build-tool",
+    "frontend"
+  ],
+  "author": "esbuild-flex contributors",
+  "license": "MIT",
+  "dependencies": {
+    "esbuild": ">=0.22.0 <0.28.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zoliszabo/esbuild-flex.git"
+  },
+  "bugs": {
+    "url": "https://github.com/zoliszabo/esbuild-flex/issues"
+  },
+  "homepage": "https://github.com/zoliszabo/esbuild-flex#readme"
+}
