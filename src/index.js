@@ -56,18 +56,19 @@ async function build(options = {}) {
 
         contexts.push(ctx);
 
-        // Initial build
-        await ctx.rebuild();
-
         if (!isWatch) {
+            // Trigger initial build for non-watch mode
+            await ctx.rebuild();
             await ctx.dispose();
         }
     }
 
     if (isWatch) {
+        // In watch mode, ctx.watch() will trigger the initial build
         logger.log(); // Leave one empty line.
-        logger.log('[WATCH MODE] build finished, watching for changes...');
+        logger.log('[WATCH MODE] Starting watch mode...');
         await Promise.all(contexts.map(ctx => ctx.watch()));
+        logger.log('[WATCH MODE] Started. Watching for changes...');
     }
 }
 
