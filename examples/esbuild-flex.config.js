@@ -11,6 +11,7 @@ module.exports = {
         // Example 1: Simple string array with glob patterns
         {
             name: 'Main scripts',
+            tags: ['dev', 'js', 'frontend'],
             entryPoints: [
                 'public/assets/js/main.js',
                 'public/assets/js/components/*.js',
@@ -21,6 +22,7 @@ module.exports = {
         // Example 2: Using {in, out} objects for explicit output names
         {
             name: 'Named outputs',
+            tags: ['production', 'js'],
             entryPoints: [
                 { in: 'src/home.ts', out: 'home-page' },
                 { in: 'src/about.ts', out: 'about-page' },
@@ -51,6 +53,7 @@ module.exports = {
         // Example 5: CSS processing with glob patterns
         {
             name: 'Stylesheets',
+            tags: ['dev', 'css', 'frontend'],
             entryPoints: [
                 'public/assets/css/main.css',
                 'public/assets/css/themes/*.css',
@@ -62,6 +65,7 @@ module.exports = {
         // Example 6: CSS with custom output names
         {
             name: 'Named CSS outputs',
+            tags: ['production', 'css'],
             entryPoints: [
                 { in: 'src/styles/light.css', out: 'theme-light' },
                 { in: 'src/styles/dark.css', out: 'theme-dark' },

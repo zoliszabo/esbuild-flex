@@ -7,12 +7,33 @@ const { logger, isVerboseMode } = require('./logger');
 async function build(options = {}) {
     const isWatch = options.watch || false;
     const configPath = path.resolve(process.cwd(), options.configPath || 'esbuild-flex.config.js');
+    const filterTags = options.tags || null;
 
     // Load and validate configuration
     const userConfig = loadConfig(configPath);
     validateConfig(userConfig);
 
-    const { groups = [], ...rootConfig } = userConfig;
+    let { groups = [], ...rootConfig } = userConfig;
+
+    // Filter groups by tags if specified
+    if (filterTags && filterTags.length > 0) {
+        const originalCount = groups.length;
+        groups = groups.filter(group => {
+            // If group has no tags, it's not included when filtering by tags
+            if (!group.tags || !Array.isArray(group.tags) || group.tags.length === 0) {
+                return false;
+            }
+            // Include group if it has at least one matching tag
+            return group.tags.some(tag => filterTags.includes(tag));
+        });
+
+        logger.log(`Filtered ${originalCount} group(s) to ${groups.length} group(s) matching tag(s): ${filterTags.join(', ')}`);
+
+        if (groups.length === 0) {
+            logger.error(`No groups found matching tags: ${filterTags.join(', ')}`);
+            process.exit(1);
+        }
+    }
     const globalConfig = {
         ...DEFAULT_ESBUILD_OPTIONS,
         ...rootConfig,

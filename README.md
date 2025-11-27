@@ -116,7 +116,7 @@ module.exports = {
     minify: false,
     bundle: false,
     // ... any esbuild option
-    
+
     groups: [ /* ... */ ]
 };
 ```
@@ -128,15 +128,69 @@ Each group must have:
 
 Each group can optionally have:
 - `name` (string) - For logging purposes
+- `tags` (string[]) - Tags for selective building/watching
 - Any esbuild option to override global config
 
 ### esbuild-flex Specific Options
 
-Only two options are specific to esbuild-flex and won't be passed to esbuild:
+Only three options are specific to esbuild-flex and won't be passed to esbuild:
 - `name` - Group label for logging
+- `tags` - Array of tags for filtering groups
 - `groups` - Array of group configurations
 
 Everything else is passed directly to esbuild.
+
+### Selective Building with Tags
+
+You can tag groups and build only specific groups using the `--tags` flag:
+
+```javascript
+module.exports = {
+    groups: [
+        {
+            name: 'JavaScript',
+            tags: ['dev', 'js'],
+            entryPoints: ['src/**/*.js'],
+            outdir: 'dist/js',
+        },
+        {
+            name: 'Stylesheets',
+            tags: ['dev', 'css'],
+            entryPoints: ['src/**/*.css'],
+            outdir: 'dist/css',
+        },
+        {
+            name: 'Production bundle',
+            tags: ['production'],
+            entryPoints: ['src/app.js'],
+            outdir: 'dist',
+            bundle: true,
+            minify: true,
+        }
+    ]
+};
+```
+
+Build only specific groups:
+
+```bash
+# Build only JavaScript groups
+npx esbuild-flex --tags=js
+
+# Build only CSS groups
+npx esbuild-flex --tags=css
+
+# Build groups tagged with 'dev' (both JS and CSS)
+npx esbuild-flex --tags=dev
+
+# Build multiple tags (groups matching ANY of these tags)
+npx esbuild-flex --tags=js,css
+
+# Watch only production builds
+npx esbuild-flex --watch --tags=production
+```
+
+**Note:** Groups without tags will only be built when no `--tags` filter is specified.
 
 ## Examples
 

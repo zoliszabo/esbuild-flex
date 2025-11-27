@@ -25,6 +25,16 @@ export interface FlexGroup extends BuildOptions {
   name?: string;
 
   /**
+   * Optional tags for this group. Used to selectively build/watch specific groups.
+   * Groups without tags will only be built when no tag filter is specified.
+   *
+   * @example
+   * tags: ['dev', 'js']
+   * tags: ['production', 'css']
+   */
+  tags?: string[];
+
+  /**
    * Entry points for this group. Supports all three esbuild formats:
    * - string[] - Array of file paths or glob patterns
    * - {in: string, out: string}[] - Explicit input/output pairs

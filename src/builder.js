@@ -2,7 +2,7 @@ const esbuild = require('esbuild');
 const { logger } = require('./logger');
 
 // esbuild-flex specific options that should NOT be passed to esbuild.context()
-const FLEX_SPECIFIC_OPTIONS = ['name', 'groups'];
+const FLEX_SPECIFIC_OPTIONS = ['name', 'groups', 'tags'];
 
 /**
  * Resolves esbuild options for a group by merging global config with group-specific overrides.
