@@ -89,7 +89,7 @@ async function build(options = {}) {
         logger.log(); // Leave one empty line.
         logger.log('[WATCH MODE] Starting watch mode...');
         await Promise.all(contexts.map(ctx => ctx.watch()));
-        logger.log('[WATCH MODE] Started. Watching for changes...');
+        logger.info('[WATCH MODE] Started. Watching for changes...');
     }
 }
 
