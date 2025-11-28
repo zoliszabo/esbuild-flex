@@ -28,7 +28,7 @@ The CLI is the simplest way to use esbuild-flex. It reads your config file and r
 
 #### 1. Create `esbuild-flex.config.js`
 
-Add the `@type` comment for full autocomplete and type checking in your editor:
+Add the `@type` comment for full autocomplete and type checking in your editor ([see full example](examples/esbuild-flex.config.js)):
 
 ```javascript
 /** @type {import('esbuild-flex').FlexConfig} */
@@ -96,6 +96,15 @@ npx esbuild-flex --config=custom.config.js
 
 # Watch with custom config
 npx esbuild-flex --watch --config=custom.config.js
+
+# Verbose mode (shows debug logs)
+npx esbuild-flex --verbose
+
+# Silent mode (only errors and warnings)
+npx esbuild-flex --silent
+
+# Combine options
+npx esbuild-flex --watch --verbose --config=custom.config.js
 ```
 
 #### 3. Add to package.json scripts
@@ -108,6 +117,18 @@ npx esbuild-flex --watch --config=custom.config.js
   }
 }
 ```
+
+#### CLI Options
+
+| Option | Description |
+|--------|-------------|
+| `--watch` | Enable watch mode - automatically rebuild on file changes |
+| `--config=<path>` | Specify a custom config file path (default: `esbuild-flex.config.js`) |
+| `--tags=<tag1,tag2>` | Build only groups with matching tags (comma-separated) |
+| `--verbose` | Enable verbose logging (shows debug information) |
+| `--silent` | Silent mode (only show errors and warnings) |
+
+**Note:** `--verbose` and `--silent` cannot be used together.
 
 ### Programmatic API Usage
 
@@ -260,6 +281,41 @@ customBuildPipeline().catch(error => {
 });
 ```
 
+#### Using Callbacks
+
+You can use callbacks to track build progress and handle results programmatically:
+
+```javascript
+const { build } = require('esbuild-flex');
+
+await build({
+    configFile: './esbuild-flex.config.js',
+
+    // Called before each group starts building
+    onBuildStart: (group) => {
+        console.log(`Building: ${group.name}`);
+    },
+
+    // Called after each group finishes
+    onBuildEnd: (group, result) => {
+        if (result.errors.length > 0) {
+            console.error(`Failed: ${group.name}`);
+        } else {
+            console.log(`Success: ${group.name}`);
+        }
+    },
+
+    // Called after all groups finish (non-watch mode only)
+    onAllBuildsComplete: (results) => {
+        console.log(`Built ${results.length} groups`);
+    }
+});
+```
+
+**See full examples:**
+- [Programmatic usage with callbacks](examples/programmatic-with-callbacks.js)
+- [Watch mode with callbacks](examples/watch-with-callbacks.js)
+
 #### API Options
 
 The `build()` function accepts an options object with the following properties:
@@ -270,6 +326,9 @@ The `build()` function accepts an options object with the following properties:
 | `configFile` | `string` | Path to config file (default: `'esbuild-flex.config.js'`) |
 | `watch` | `boolean` | Enable watch mode (default: `false`) |
 | `tags` | `string[]` | Filter groups by tags |
+| `onBuildStart` | `(group) => void` | Callback invoked before each group starts building |
+| `onBuildEnd` | `(group, result) => void` | Callback invoked after each group finishes building |
+| `onAllBuildsComplete` | `(results) => void` | Callback invoked after all groups finish (non-watch mode only) |
 
 **Note:** You must provide either `config` or `configFile`, but not both.
 
@@ -455,3 +514,7 @@ MIT
 ## Contributing
 
 Issues and PRs welcome!
+
+---
+
+**Note:** This README was mostly AI-generated and while it has been verified, it may contain errors or inaccuracies. If you find any issues, please report them or submit a PR.
