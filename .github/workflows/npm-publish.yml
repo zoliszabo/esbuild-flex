@@ -1,11 +1,16 @@
 # This workflow will run tests using node and then publish a package to GitHub Packages when a release is created
 # For more information see: https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages
+# Trusted publishing for npm packages (without npm tokens): https://docs.npmjs.com/trusted-publishers#supported-cicd-providers
 
 name: Node.js Package
 
 on:
   release:
     types: [created]
+
+permissions:
+  id-token: write  # Required for OIDC
+  contents: read
 
 jobs:
   build:
@@ -15,6 +20,7 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 24
+      - run: npm --version
       - run: npm ci
       - run: npm test
 
@@ -27,7 +33,6 @@ jobs:
         with:
           node-version: 24
           registry-url: https://registry.npmjs.org/
+      - run: npm install -g npm@latest  # Ensure npm 11.5.1 or later is installed (required for trusted publishing)
       - run: npm ci
       - run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
