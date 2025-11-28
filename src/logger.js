@@ -10,7 +10,8 @@
  * @returns {LoggerImplementation}
  */
 function consoleLogger(prefix = null) {
-    const { styleText } = require("util");
+    const util = require("util");
+    const styleText = util.styleText || ((styles, text) => text); // Fallback for Node.js < 20.12.0
     prefix = prefix ?? styleText(['gray'], '[esbuild-flex]');
 
     return {
